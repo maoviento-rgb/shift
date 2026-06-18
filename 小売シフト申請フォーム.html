@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>希望休申請</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans JP',sans-serif;background:#F5F3EF;color:#1a1a1a;min-height:100vh;padding-bottom:40px;}
+.header{background:#1a1a1a;color:#fff;padding:20px 16px 16px;text-align:center;}
+.header h1{font-size:17px;font-weight:500;letter-spacing:.05em;margin-bottom:4px;}
+.header p{font-size:12px;color:rgba(255,255,255,.55);}
+.container{max-width:480px;margin:0 auto;padding:16px;}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e4e0d8;}
+.card-title{font-size:13px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.req{color:#A32D2D;font-size:10px;margin-left:2px;}
+
+/* スタッフグリッド */
+.staff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.staff-btn{width:100%;padding:12px 8px;border:1.5px solid #e4e0d8;border-radius:10px;background:#fff;font-family:inherit;font-size:13px;font-weight:500;color:#1a1a1a;cursor:pointer;text-align:center;transition:all .15s;}
+.staff-btn:active{transform:scale(.97);}
+.staff-btn.selected{border-color:#1a1a1a;background:#1a1a1a;color:#fff;}
+
+/* 日付 */
+input[type=date]{width:100%;padding:11px 12px;border:1.5px solid #e4e0d8;border-radius:10px;font-size:14px;font-family:inherit;background:#F5F3EF;color:#1a1a1a;outline:none;}
+input[type=date]:focus{border-color:#1a1a1a;background:#fff;}
+.date-info{font-size:11px;margin-top:6px;}
+
+/* チップ */
+.chips{display:flex;gap:7px;flex-wrap:wrap;}
+.chip{padding:7px 16px;border-radius:99px;border:1.5px solid #e4e0d8;background:#fff;color:#888;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .15s;}
+.chip:active{transform:scale(.96);}
+.chip.selected{border-color:#1a1a1a;background:#1a1a1a;color:#fff;}
+
+/* 優先度カード */
+.priority-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+.prio-card{padding:16px 10px;border:2px solid #e4e0d8;border-radius:12px;background:#fff;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.prio-card:active{transform:scale(.97);}
+.prio-card .icon{font-size:24px;margin-bottom:6px;}
+.prio-card .label{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:3px;}
+.prio-card .desc{font-size:10px;color:#aaa;}
+.prio-card.selected-kibou{border-color:#3B6D11;background:#EAF3DE;}
+.prio-card.selected-kibou .label{color:#27500A;}
+.prio-card.selected-fukou{border-color:#A32D2D;background:#FCEBEB;}
+.prio-card.selected-fukou .label{color:#A32D2D;}
+
+/* テキストエリア */
+textarea{width:100%;padding:10px 12px;border:1.5px solid #e4e0d8;border-radius:10px;font-size:13px;font-family:inherit;background:#F5F3EF;color:#1a1a1a;resize:none;height:72px;outline:none;margin-top:8px;}
+textarea:focus{border-color:#1a1a1a;background:#fff;}
+
+/* 確認 */
+.confirm-box{background:#F5F3EF;border-radius:10px;padding:12px;}
+.confirm-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e4e0d8;font-size:13px;gap:10px;}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-row .lbl{color:#888;font-size:11px;white-space:nowrap;}
+.confirm-row .val{font-weight:500;text-align:right;}
+
+/* 注意書き */
+.notice-box{background:#FFFBEE;border:1px solid #E8C070;border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.notice-title{font-size:12px;font-weight:500;color:#7A5A00;margin-bottom:10px;}
+.notice-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.notice-list li{font-size:12px;color:#5a4a00;line-height:1.6;display:flex;gap:6px;}
+.notice-list li .ni{flex-shrink:0;}
+
+/* 送信ボタン */
+.submit-btn{width:100%;padding:14px;border-radius:12px;border:none;background:#1a1a1a;color:#fff;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:8px;}
+.submit-btn:active{transform:scale(.98);}
+.submit-btn:disabled{background:#ccc;cursor:not-allowed;}
+.note{font-size:11px;color:#aaa;text-align:center;}
+
+/* 成功画面 */
+.success{display:none;text-align:center;padding:32px 16px;}
+.success-icon{font-size:56px;margin-bottom:12px;}
+.success h2{font-size:18px;font-weight:700;margin-bottom:8px;color:#27500A;}
+.success p{font-size:13px;color:#888;line-height:1.8;margin-bottom:16px;}
+.success-detail{background:#EAF3DE;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;}
+.success-detail .row{display:flex;gap:10px;font-size:12px;padding:3px 0;}
+.success-detail .lbl{color:#3B6D11;min-width:52px;font-weight:500;}
+.again-btn{width:100%;padding:12px;border-radius:10px;border:1.5px solid #e4e0d8;background:#fff;font-family:inherit;font-size:14px;cursor:pointer;color:#1a1a1a;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📅 希望休申請フォーム</h1>
+  <p>申請後、管理者が確認して承認します</p>
+</div>
+
+<div class="container">
+<div id="form-area">
+
+  <!-- スタッフ選択 -->
+  <div class="card">
+    <div class="card-title">あなたの名前を選んでください<span class="req">※必須</span></div>
+    <div class="staff-grid" id="staff-grid"></div>
+  </div>
+
+  <!-- 日付 -->
+  <div class="card">
+    <div class="card-title">希望休の日付<span class="req">※必須</span></div>
+    <input type="date" id="f-date" onchange="onDateChange()">
+    <div class="date-info" id="date-info"></div>
+  </div>
+
+  <!-- 種別・優先度 -->
+  <div class="card">
+    <div class="card-title">📋 種別・優先度を選んでください<span class="req">※必須</span></div>
+
+    <div style="font-size:12px;color:#888;margin-bottom:8px;">種別（有休の使用方法）</div>
+    <div class="chips" id="type-chips" style="margin-bottom:6px;">
+      <button class="chip selected" onclick="selectType(this,'yukyu')">有休</button>
+      <button class="chip" onclick="selectType(this,'furikae')">公休振替</button>
+    </div>
+    <p style="font-size:11px;color:#aaa;margin-bottom:16px;">希望休は原則、有休が残っている場合は有休を使用します</p>
+
+    <div style="font-size:12px;color:#888;margin-bottom:8px;">優先度<span class="req">※</span></div>
+    <div class="priority-grid">
+      <button class="prio-card" id="prio-kibou" onclick="selectPrio('kibou')">
+        <div class="icon">🙏</div>
+        <div class="label">希望休</div>
+        <div class="desc">できれば休みたい</div>
+      </button>
+      <button class="prio-card" id="prio-fukou" onclick="selectPrio('fukou')">
+        <div class="icon">🚫</div>
+        <div class="label">出勤不可</div>
+        <div class="desc">絶対に出られない</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- 理由 -->
+  <div class="card">
+    <div class="card-title">💬 理由<span class="req">※必須</span></div>
+    <div class="chips" id="reason-chips">
+      <button class="chip" onclick="selectReason(this,'私用')">私用</button>
+      <button class="chip" onclick="selectReason(this,'通院・病院')">通院・病院</button>
+      <button class="chip" onclick="selectReason(this,'家族の用事')">家族の用事</button>
+      <button class="chip" onclick="selectReason(this,'冠婚葬祭')">冠婚葬祭</button>
+      <button class="chip" onclick="selectReason(this,'その他')">その他</button>
+    </div>
+    <textarea id="f-detail" placeholder="詳細があれば記入（冠婚葬祭・通院など配慮が必要な場合は必ずご記入ください）"></textarea>
+  </div>
+
+  <!-- 確認 -->
+  <div class="card" id="confirm-card" style="display:none;">
+    <div class="card-title">✅ 申請内容の確認</div>
+    <div class="confirm-box">
+      <div class="confirm-row"><span class="lbl">名前</span><span class="val" id="c-name"></span></div>
+      <div class="confirm-row"><span class="lbl">日付</span><span class="val" id="c-date"></span></div>
+      <div class="confirm-row"><span class="lbl">種別</span><span class="val" id="c-type"></span></div>
+      <div class="confirm-row"><span class="lbl">優先度</span><span class="val" id="c-prio"></span></div>
+      <div class="confirm-row"><span class="lbl">理由</span><span class="val" id="c-reason"></span></div>
+    </div>
+  </div>
+
+  <!-- 注意書き -->
+  <div class="notice-box">
+    <div class="notice-title">📌 申請前にご確認ください</div>
+    <ul class="notice-list">
+      <li><span class="ni">✅</span><span>入力内容に誤りがないか、送信前に必ずご確認ください。</span></li>
+      <li><span class="ni">🗓️</span><span>公休以外の希望休申請は原則月2回まで（公休振替を除く）。</span></li>
+      <li><span class="ni">💬</span><span>冠婚葬祭・通院など配慮が必要な場合は、コメント欄へご記入ください。</span></li>
+      <li><span class="ni">📣</span><span>公休を含め3日以上の連休は、60日前を目安に担当者へご相談ください。旅行など計画が決まった段階でお早めにご一報をお願いします。</span></li>
+      <li><span class="ni">📌</span><span>どうしてもずらせない予定がある場合は、なるべく早めに担当者へご一報ください。</span></li>
+      <li><span class="ni">⏰</span><span>みんなが働きやすいシフト作成のため、早めの申請にご協力をお願いいたします。</span></li>
+      <li><span class="ni">ℹ️</span><span>店舗運営状況により、ご希望に添えない場合もございます。</span></li>
+    </ul>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitForm()" disabled>申請する</button>
+  <p class="note">申請後、管理者が承認・却下を行います</p>
+
+</div>
+
+<!-- 成功画面 -->
+<div class="success" id="success-screen">
+  <div class="success-icon">✅</div>
+  <h2>申請が完了しました！</h2>
+  <p>管理者が確認して<br>承認・却下をお知らせします</p>
+  <div class="success-detail" id="success-detail"></div>
+  <button class="again-btn" onclick="resetForm()">続けて申請する</button>
+</div>
+
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbwWIWDtBcUKtgQMZlAIDm7TZfly2Zq2EjTBWPea4cVJ-vYQbjcp-_trJxzJtrIp4eMA/exec';
+const DAY=['日','月','火','水','木','金','土'];
+
+const STAFF=[
+  {name:'筋野 園子',   stores:['道具屋nobori'],                 kokyu:[1,2]},
+  {name:'妹尾 篤子',   stores:['道具屋nobori'],                 kokyu:[0,1]},
+  {name:'渡邊 茜',     stores:['道具屋nobori'],                 kokyu:[1,2,3,5]},
+  {name:'天野 恵美',   stores:['道具屋nobori'],                 kokyu:[0,4]},
+  {name:'田中 沙緒里', stores:['道具屋nobori','古色'],          kokyu:[3,4]},
+  {name:'中尾 真美',   stores:['道具屋nobori','古色'],          kokyu:[2,6]},
+  {name:'成瀬 優莉',   stores:['文月','古色'],                  kokyu:[2,5]},
+  {name:'山田 真実',   stores:['文月','古色'],                  kokyu:[3,6]},
+  {name:'佐藤 碧',     stores:['文月'],                         kokyu:[4,5]},
+  {name:'黒岩 愛',     stores:['文月'],                         kokyu:[1,2]},
+  {name:'宮本 芽生',   stores:['文月','古色'],                  kokyu:[4,5]},
+  {name:'篠﨑 広太',   stores:['古色','道具屋nobori','文月'],   kokyu:[1,2]},
+  {name:'丸山 麻理恵', stores:['古色','道具屋nobori','文月'],   kokyu:[1,5]},
+  {name:'伊藤 成海',   stores:['古色','道具屋nobori','文月'],   kokyu:[3,6]},
+  {name:'菅 美玖',     stores:['古色','道具屋nobori','文月'],   kokyu:[4,5]},
+];
+
+let selStaff=null, selType='yukyu', selPrio=null, selReason='';
+
+function buildGrid(){
+  document.getElementById('staff-grid').innerHTML=STAFF.map((s,i)=>
+    `<button class="staff-btn" onclick="selectStaff(${i},this)">${s.name}</button>`
+  ).join('');
+}
+
+function selectStaff(i,el){
+  document.querySelectorAll('.staff-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  selStaff=i;
+  onDateChange();
+  updateConfirm();
+  validate();
+}
+
+function onDateChange(){
+  const ds=document.getElementById('f-date').value;
+  const info=document.getElementById('date-info');
+  if(!ds){info.textContent='';return;}
+  const [y,mo,d]=ds.split('-').map(Number);
+  const dow=new Date(y,mo-1,d).getDay();
+  let msg=`${y}年${mo}月${d}日（${DAY[dow]}曜日）`;
+  if(selStaff!==null){
+    const s=STAFF[selStaff];
+    if(s.kokyu.includes(dow)){
+      msg+='　⚠️ この日は公休日です';
+      info.style.color='#A32D2D';
+    } else {
+      msg+='　✅ 申請可能';
+      info.style.color='#3B6D11';
+    }
+  }
+  info.textContent=msg;
+  updateConfirm();
+  validate();
+}
+
+function selectType(el,val){
+  document.querySelectorAll('#type-chips .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selType=val;
+  updateConfirm();
+}
+
+function selectPrio(val){
+  selPrio=val;
+  document.getElementById('prio-kibou').className='prio-card'+(val==='kibou'?' selected-kibou':'');
+  document.getElementById('prio-fukou').className='prio-card'+(val==='fukou'?' selected-fukou':'');
+  updateConfirm();
+  validate();
+}
+
+function selectReason(el,val){
+  document.querySelectorAll('#reason-chips .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selReason=val;
+  updateConfirm();
+  validate();
+}
+
+function updateConfirm(){
+  const ds=document.getElementById('f-date').value;
+  const card=document.getElementById('confirm-card');
+  if(selStaff===null||!ds||!selReason||!selPrio){card.style.display='none';return;}
+  const s=STAFF[selStaff];
+  const [y,mo,d]=ds.split('-').map(Number);
+  const dow=new Date(y,mo-1,d).getDay();
+  const detail=document.getElementById('f-detail').value.trim();
+  const typeLabel={yukyu:'有休',furikae:'公休振替'};
+  const prioLabel={kibou:'🙏 希望休（できれば休みたい）',fukou:'🚫 出勤不可（絶対に出られない）'};
+  document.getElementById('c-name').textContent=s.name;
+  document.getElementById('c-date').textContent=`${y}年${mo}月${d}日（${DAY[dow]}曜日）`;
+  document.getElementById('c-type').textContent=typeLabel[selType]||'有休';
+  document.getElementById('c-prio').textContent=prioLabel[selPrio]||'';
+  document.getElementById('c-reason').textContent=detail?selReason+'（'+detail+'）':selReason;
+  card.style.display='block';
+}
+
+function validate(){
+  const ds=document.getElementById('f-date').value;
+  const btn=document.getElementById('submit-btn');
+  const ok=selStaff!==null&&ds&&selReason&&selPrio;
+  btn.disabled=!ok;
+}
+
+async function submitForm(){
+  if(selStaff===null||!selPrio)return;
+  const ds=document.getElementById('f-date').value;
+  if(!ds||!selReason)return;
+  const s=STAFF[selStaff];
+  const [y,mo,d]=ds.split('-').map(Number);
+  const dow=new Date(y,mo-1,d).getDay();
+  const detail=document.getElementById('f-detail').value.trim();
+  const reason=detail?selReason+'（'+detail+'）':selReason;
+  const typeLabel={yukyu:'有休',furikae:'公休振替'};
+  const prioLabel={kibou:'希望休',fukou:'出勤不可'};
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='送信中...';
+
+  try{
+    await fetch(GAS_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        id:Date.now(),
+        name:s.name,
+        store:s.stores[0],
+        date:ds,
+        dow:DAY[dow]+'曜日',
+        type:typeLabel[selType],
+        priority:prioLabel[selPrio],
+        reason,
+      }),
+    });
+    document.getElementById('form-area').style.display='none';
+    document.getElementById('success-screen').style.display='block';
+    document.getElementById('success-detail').innerHTML=`
+      <div class="row"><span class="lbl">名前</span><span>${s.name}</span></div>
+      <div class="row"><span class="lbl">日付</span><span>${y}年${mo}月${d}日（${DAY[dow]}）</span></div>
+      <div class="row"><span class="lbl">種別</span><span>${typeLabel[selType]}</span></div>
+      <div class="row"><span class="lbl">優先度</span><span>${prioLabel[selPrio]}</span></div>
+      <div class="row"><span class="lbl">理由</span><span>${reason}</span></div>
+      <div class="row"><span class="lbl">状況</span><span>✅ 承認待ち</span></div>`;
+  }catch(err){
+    alert('送信エラーが発生しました。\n'+err.message);
+    btn.disabled=false;btn.textContent='申請する';
+  }
+}
+
+function resetForm(){
+  selStaff=null;selType='yukyu';selPrio=null;selReason='';
+  document.querySelectorAll('.staff-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#type-chips .chip').forEach((c,i)=>c.classList.toggle('selected',i===0));
+  document.querySelectorAll('#reason-chips .chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('prio-kibou').className='prio-card';
+  document.getElementById('prio-fukou').className='prio-card';
+  document.getElementById('f-date').value='';
+  document.getElementById('f-detail').value='';
+  document.getElementById('date-info').textContent='';
+  document.getElementById('confirm-card').style.display='none';
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('submit-btn').textContent='申請する';
+  document.getElementById('form-area').style.display='block';
+  document.getElementById('success-screen').style.display='none';
+  window.scrollTo(0,0);
+}
+
+// 翌日以降のみ選択可
+const t=new Date();t.setDate(t.getDate()+1);
+document.getElementById('f-date').min=t.toISOString().slice(0,10);
+
+buildGrid();
+</script>
+</body>
+</html>
